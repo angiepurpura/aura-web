@@ -1,0 +1,16 @@
+{
+  "name": "aura-oraculo-prenatal",
+  "version": "3.0.0",
+  "private": true,
+  "type": "module",
+  "description": "AURA — plataforma de experiencias espirituales prenatales, con servidor propio (server.js) que funciona en cualquier hosting Node.",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2",
+    "pg": "^8.11.5"
+  }
+}

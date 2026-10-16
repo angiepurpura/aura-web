@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tu lectura · AURA</title>
+<link rel="icon" type="image/png" href="assets/favicon-32.png">
+<link rel="stylesheet" href="assets/aura.css">
+<style>
+.wrap{max-width:760px;margin:auto;padding:44px 22px 90px}
+.back{display:inline-block;margin-bottom:28px;color:var(--m);font-size:14px}
+h1{font-size:32px;margin-bottom:8px}
+.meta{color:var(--m);font-size:13px;margin-bottom:24px}
+.surface{padding:24px;border-radius:18px}
+.reading{white-space:pre-line;font-size:15px;line-height:1.8}
+.cards{color:var(--g);font-size:13px;margin-bottom:18px}
+.msg{text-align:center;color:var(--m);padding:50px 0}
+.error{color:#ffb4b4}
+</style>
+</head>
+<body>
+<div class="wrap">
+<a class="back" href="historial.html">← Mi Camino Aura</a>
+<div id="content" class="msg">✨ Abriendo tu lectura...</div>
+</div>
+<script>
+const id=new URLSearchParams(location.search).get('lectura');
+const content=document.getElementById('content');
+if(!id){
+  content.textContent='No se ha indicado ninguna lectura.';
+  content.className='msg error';
+}else{
+  fetch('/api/mi-lectura?id='+encodeURIComponent(id))
+    .then(async r=>{
+      const data=await r.json();
+      if(!r.ok) throw new Error(data.error||'No se pudo cargar la lectura.');
+      return data;
+    })
+    .then(data=>{
+      content.className='';
+      content.innerHTML='';
+      const title=document.createElement('h1');
+      title.textContent='Tu lectura AURA';
+      const meta=document.createElement('div');
+      meta.className='meta';
+      meta.textContent=new Date(data.creado_en).toLocaleDateString('es-ES',{day:'numeric',month:'long',year:'numeric'});
+      const cards=document.createElement('div');
+      cards.className='cards';
+      cards.textContent='🃏 '+data.cartas.join(' · ');
+      const box=document.createElement('div');
+      box.className='surface reading';
+      box.textContent=data.resultado_texto;
+      content.append(title,meta,cards,box);
+    })
+    .catch(err=>{
+      content.textContent=err.message;
+      content.className='msg error';
+    });
+}
+</script>
+</body>
+</html>

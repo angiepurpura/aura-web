@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Restablecer contraseña · AURA</title>
+<link rel="icon" type="image/png" href="assets/favicon-32.png">
+<link rel="stylesheet" href="assets/aura.css">
+<style>
+body{min-height:100vh;display:flex;align-items:center;justify-content:center}
+.box{max-width:380px;width:100%;padding:20px;text-align:center}
+h1{font-size:28px;margin-bottom:20px}
+.msg{font-size:13px;margin-bottom:14px}
+.error{color:#ffb4b4}
+.success{color:#a8f0c6}
+</style>
+</head>
+<body>
+<div class="box">
+  <h1>Nueva contraseña</h1>
+  <div id="formArea">
+    <input type="password" id="newPassword" placeholder="Nueva contraseña (mín. 8 caracteres)" minlength="8" required>
+    <div id="msg" class="msg" style="display:none"></div>
+    <button class="cta gold" style="width:100%" onclick="submitReset()">Guardar nueva contraseña</button>
+  </div>
+  <div id="successArea" style="display:none">
+    <p class="msg success">✨ Contraseña actualizada. Ya puedes iniciar sesión en la web.</p>
+    <a href="index.html">Volver a AURA →</a>
+  </div>
+  <div id="invalidArea" style="display:none">
+    <p class="msg error">Este enlace no es válido. Vuelve a la web e inicia el proceso de "Olvidé mi contraseña" de nuevo.</p>
+    <a href="index.html">Volver a AURA →</a>
+  </div>
+</div>
+<script>
+const params = new URLSearchParams(window.location.search);
+const token = params.get('token');
+const userId = params.get('uid');
+
+if(!token || !userId){
+  document.getElementById('formArea').style.display='none';
+  document.getElementById('invalidArea').style.display='block';
+}
+
+async function submitReset(){
+  const newPassword = document.getElementById('newPassword').value;
+  const msg = document.getElementById('msg');
+  msg.style.display='none';
+  if(!newPassword || newPassword.length < 8){
+    msg.textContent='La contraseña debe tener al menos 8 caracteres.';
+    msg.className='msg error';
+    msg.style.display='block';
+    return;
+  }
+  try{
+    const r = await fetch('/api/confirmar-reset',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({token,userId,newPassword})
+    });
+    const data = await r.json();
+    if(!r.ok) throw new Error(data.error||'Error al restablecer la contraseña');
+    document.getElementById('formArea').style.display='none';
+    document.getElementById('successArea').style.display='block';
+  }catch(err){
+    msg.textContent=err.message;
+    msg.className='msg error';
+    msg.style.display='block';
+  }
+}
+</script>
+</body>
+</html>

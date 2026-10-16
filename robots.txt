@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /historial.html
+
+Sitemap: https://www.auramistic.com/sitemap.xml

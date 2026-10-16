@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Camino Aura</title>
+<link rel="icon" type="image/png" href="assets/favicon-32.png">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#070316">
+<link rel="stylesheet" href="assets/aura.css">
+<style>
+body{min-height:100vh;display:flex;flex-direction:column}
+.topbar{display:flex;justify-content:space-between;align-items:center;padding:18px 22px}
+.topbar a{color:var(--m);text-decoration:none;font-size:14px}
+.progress{display:flex;gap:6px}
+.dot{width:7px;height:7px;border-radius:50%;background:rgba(244,201,93,.25)}
+.dot.active{background:var(--g)}
+main{flex:1;display:flex;align-items:center;justify-content:center;padding:20px}
+.screen{display:none;max-width:480px;width:100%;text-align:center;animation:fadeIn .5s ease}
+.screen.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+h1{font-size:34px;margin:0 0 14px}
+p.lead{color:var(--m);font-size:15px;line-height:1.7;margin-bottom:30px}
+.path-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
+.path-btn{background:rgba(244,201,93,.06);border:1px solid var(--line);border-radius:16px;padding:20px 14px;color:var(--t);cursor:pointer;font-size:14px;text-align:center}
+.path-btn:hover{background:rgba(244,201,93,.12)}
+.path-btn.locked{opacity:.4;cursor:not-allowed}
+.path-btn.selected{background:var(--p);color:#fff;border-color:var(--p)}
+.path-btn .emoji{font-size:26px;display:block;margin-bottom:8px}
+.tarot-row{display:flex;justify-content:center;gap:10px;margin:20px 0;flex-wrap:wrap}
+.tarot-card{width:56px;height:80px;border:1px solid var(--line);border-radius:10px;background:rgba(244,201,93,.06);font-size:22px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.tarot-card.selected{background:var(--p);color:#fff;border-color:var(--p)}
+.reading-box{white-space:pre-line;text-align:left;font-size:14.5px;line-height:1.75;max-height:340px;overflow:auto;margin-bottom:20px}
+.loading{color:var(--m);padding:40px 0}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="index.html">← AURA</a>
+  <div class="progress" id="progress"></div>
+  <span style="width:40px"></span>
+</div>
+
+<main>
+
+  <div class="screen active" id="screen1">
+    <h1>Bienvenida a Aura</h1>
+    <p class="lead">Un espacio de calma, símbolos y reflexión para acompañarte en tu momento.</p>
+    <button class="cta" onclick="goTo(2)">Comenzar →</button>
+  </div>
+
+  <div class="screen" id="screen2">
+    <h1 style="font-size:26px">¿Qué camino quieres comenzar?</h1>
+    <div class="path-grid">
+      <button class="path-btn" onclick="choosePath('prenatal')"><span class="emoji">🌙</span>Mi embarazo</button>
+      <button class="path-btn" onclick="choosePath('calma')"><span class="emoji">🕊️</span>Necesito calma</button>
+      <button class="path-btn locked" title="Próximamente"><span class="emoji">✨</span>Mi camino personal</button>
+      <button class="path-btn locked" title="Próximamente"><span class="emoji">🦋</span>Comenzar de nuevo</button>
+    </div>
+    <p class="lead" style="font-size:13px">Los demás caminos llegarán pronto. Hoy, Aura Prenatal y Aura Calma están listos para ti.</p>
+  </div>
+
+  <div class="screen" id="screen3calma">
+    <h1 style="font-size:26px">¿Qué necesitas soltar hoy?</h1>
+    <p class="lead">Elige lo que más resuena contigo ahora mismo.</p>
+    <div class="path-grid" id="calmaOptions">
+      <button class="path-btn" data-calma="Ansiedad">😔 Ansiedad</button>
+      <button class="path-btn" data-calma="Sobrecarga">🌊 Sobrecarga</button>
+      <button class="path-btn" data-calma="Incertidumbre">🌫️ Incertidumbre</button>
+      <button class="path-btn" data-calma="Cansancio">🕯️ Cansancio</button>
+    </div>
+  </div>
+
+  <div class="screen" id="screen3">
+    <h1 style="font-size:26px">Cuéntanos un poco de ti</h1>
+    <form id="dataForm" onsubmit="return false">
+      <input id="fName" placeholder="Tu nombre" required>
+      <input id="fDob" type="date" placeholder="Fecha de nacimiento" required>
+      <input id="fBirthTime" type="time" placeholder="Hora de nacimiento (opcional, mejora tu mapa astral)">
+      <input id="fDue" type="date" placeholder="Fecha probable de parto" required>
+      <select id="fSex"><option value="">Prefiero no decirlo</option><option value="Niño">Niño</option><option value="Niña">Niña</option><option value="Sorpresa">Sorpresa</option></select>
+      <textarea id="fQuestion" placeholder="¿Qué te gustaría preguntarle a Aura? (opcional)"></textarea>
+      <button class="cta" onclick="submitData()" type="button">Continuar →</button>
+    </form>
+  </div>
+
+  <div class="screen" id="screen4">
+    <h1 style="font-size:26px">Elige 3 cartas</h1>
+    <p class="lead">Deja que tu intuición elija por ti.</p>
+    <div class="tarot-row" id="tarotRow"></div>
+    <button class="cta" id="continueAfterCards" style="display:none" onclick="revealReading()">Ver mi lectura →</button>
+  </div>
+
+  <div class="screen" id="screen5">
+    <h1 style="font-size:26px">Tu lectura</h1>
+    <div id="loadingReading" class="loading">✨ El Oráculo está conectando con tu energía...</div>
+    <div class="surface reading-box" id="readingBox" style="display:none"></div>
+    <button class="cta" onclick="goTo(6)" id="toReflection" style="display:none">Continuar →</button>
+  </div>
+
+  <div class="screen" id="screen6">
+    <h1 style="font-size:26px">Un momento para reflexionar</h1>
+    <p class="lead">Si quieres, escribe algo que sientas ahora. Solo tú lo verás.</p>
+    <div id="pastReflectionBox" class="surface" style="display:none;text-align:left;margin-bottom:20px">
+      <p style="color:var(--m);font-size:12px;margin:0 0 8px">🌙 Hace un tiempo escribiste:</p>
+      <p id="pastReflectionText" style="font-size:14px;color:#f0e6d2;margin:0;font-style:italic"></p>
+    </div>
+    <textarea id="reflectionText" placeholder="Hoy siento..."></textarea>
+    <div id="reflectionMsg" style="color:var(--c);font-size:13px;margin-bottom:10px;display:none"></div>
+    <button class="cta" onclick="saveReflection()">Guardar y continuar →</button>
+    <div><button class="cta ghost" style="margin-top:10px" onclick="goTo(7)">Omitir</button></div>
+  </div>
+
+  <div class="screen" id="screen7">
+    <h1 style="font-size:26px" id="screen7Title">¿Quieres continuar tu Camino Aura?</h1>
+    <p class="lead" id="screen7Lead">Tu experiencia completa (pago único de 20€) incluye tu lectura guardada para siempre en tu perfil.</p>
+    <a class="cta" href="https://paypal.me/auramistic/20EUR" target="_blank" rel="noopener" id="screen7PayBtn" style="text-decoration:none;display:inline-block;margin-bottom:12px">Pagar 20€ con PayPal →</a>
+    <div><a class="cta ghost" href="historial.html" style="text-decoration:none;display:inline-block;margin-top:6px">Ver mi Camino Aura</a></div>
+  </div>
+
+</main>
+
+<script type="module">
+import { MAZO_PRENATAL, drawCards } from './lib/tarotEngine.js';
+import { generateTemplateReading } from './lib/templateReadings.js';
+import { getPreviewText } from './lib/previewText.js';
+
+const totalScreens = 7;
+let currentLoggedIn = false;
+let currentLecturaId = null;
+
+async function checkSession(){
+  try{
+    const r = await fetch('/api/me');
+    const data = await r.json();
+    currentLoggedIn = !!data.loggedIn;
+  }catch(e){ currentLoggedIn = false; }
+}
+checkSession();
+let userData = {};
+let chosenCards = [];
+let lastReadingText = '';
+
+window.goTo = function(n){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen'+n).classList.add('active');
+  const progressPosition = (n==='3calma') ? 3 : n;
+  renderProgress(progressPosition);
+  if(n===6){
+    loadPastReflection();
+  }
+  if(n===7){
+    const isCalma = userData.camino==='calma';
+    document.getElementById('screen7Title').textContent = isCalma ? '¿Cómo te sientes ahora?' : '¿Quieres continuar tu Camino Aura?';
+    document.getElementById('screen7Lead').textContent = isCalma ? 'Aura Calma es un espacio gratuito. Si quieres, tu lectura prenatal completa también te está esperando.' : 'Tu experiencia completa (pago único de 20€) incluye tu lectura guardada para siempre en tu perfil.';
+    document.getElementById('screen7PayBtn').style.display = isCalma ? 'none' : 'inline-block';
+  }
+  window.scrollTo(0,0);
+};
+
+function renderProgress(current){
+  const el=document.getElementById('progress');
+  el.innerHTML='';
+  for(let i=1;i<=totalScreens;i++){
+    const d=document.createElement('div');
+    d.className='dot'+(i===current?' active':'');
+    el.appendChild(d);
+  }
+}
+renderProgress(1);
+
+window.choosePath = function(path){
+  userData.camino = path;
+  if(path==='calma'){
+    goTo('3calma');
+    return;
+  }
+  goTo(3);
+};
+
+const calmaReadings={
+  'Ansiedad':'Respira. Lo que sientes ahora es real, pero no es permanente. La ansiedad suele hablar del futuro — y el futuro, en este preciso instante, no existe todavía. Solo existe este momento, y en este momento estás a salvo. Permítete tres respiraciones lentas antes de continuar tu día. No tienes que resolverlo todo ahora.',
+  'Sobrecarga':'Llevas mucho encima. No hace falta que lo sostengas todo a la vez. Elige, si puedes, una sola cosa pequeña que puedas soltar hoy — aunque sea por unas horas. El resto seguirá ahí mañana, pero tú mereces un respiro ahora mismo.',
+  'Incertidumbre':'No saber qué va a pasar es incómodo, pero no es una señal de que algo esté mal contigo. Es parte de estar viva, tomando decisiones importantes. Confía en que, paso a paso, irás encontrando claridad — no hace falta verlo todo de golpe.',
+  'Cansancio':'Tu cuerpo te está pidiendo algo simple: descanso. No tienes que ganártelo ni justificarlo. Date permiso, aunque sean cinco minutos, para simplemente estar quieta. Eso también es productivo, aunque no lo parezca.'
+};
+
+window.chooseCalma = function(feeling, btn){
+  document.querySelectorAll('#calmaOptions .path-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+  userData.calmaFeeling = feeling;
+  userData.name = 'ti';
+  lastReadingText = `Sobre "${feeling}":\n\n${calmaReadings[feeling]}\n\n— El Oráculo de AURA 🕊️`;
+  goTo(5);
+  document.getElementById('loadingReading').style.display='block';
+  document.getElementById('readingBox').style.display='none';
+  document.getElementById('toReflection').style.display='none';
+  setTimeout(()=>{
+    document.getElementById('readingBox').textContent=lastReadingText;
+    document.getElementById('loadingReading').style.display='none';
+    document.getElementById('readingBox').style.display='block';
+    document.getElementById('toReflection').style.display='inline-block';
+  },900);
+};
+document.querySelectorAll('#calmaOptions .path-btn').forEach(b=>{
+  b.onclick=()=>chooseCalma(b.dataset.calma,b);
+});
+
+window.submitData = function(){
+  const name=document.getElementById('fName').value;
+  const dob=document.getElementById('fDob').value;
+  const due=document.getElementById('fDue').value;
+  if(!name||!dob||!due){ alert('Por favor completa nombre, fecha de nacimiento y fecha probable de parto.'); return; }
+  userData.name=name;
+  userData.dob=dob;
+  userData.birthTime=document.getElementById('fBirthTime').value;
+  userData.due=due;
+  userData.sex=document.getElementById('fSex').value;
+  userData.question=document.getElementById('fQuestion').value;
+  goTo(4);
+  renderTarotCards();
+};
+
+function renderTarotCards(){
+  const row=document.getElementById('tarotRow');
+  row.innerHTML='';
+  chosenCards=[];
+  const symbols=['🃏','🌙','✨','🔮','⭐'];
+  MAZO_PRENATAL.forEach((cardName,i)=>{
+    const btn=document.createElement('button');
+    btn.className='tarot-card';
+    btn.textContent=symbols[i%symbols.length];
+    btn.onclick=()=>{
+      if(btn.classList.contains('selected')||chosenCards.length>=3) return;
+      btn.classList.add('selected');
+      chosenCards.push(cardName);
+      if(chosenCards.length===3) document.getElementById('continueAfterCards').style.display='inline-block';
+    };
+    row.appendChild(btn);
+  });
+}
+
+window.revealReading = async function(){
+  goTo(5);
+  const loadingEl=document.getElementById('loadingReading');
+  const boxEl=document.getElementById('readingBox');
+  const nextBtn=document.getElementById('toReflection');
+  loadingEl.style.display='block';
+  boxEl.style.display='none';
+  nextBtn.style.display='none';
+  currentLecturaId = null;
+
+  await new Promise(r=>setTimeout(r,700)); // pequeña pausa, se siente más "ritual"
+
+  if(currentLoggedIn){
+    // Con cuenta: el SERVIDOR es la única fuente de verdad. Generamos y
+    // guardamos una sola vez ahí, y mostramos exactamente lo que devuelve
+    // (nunca una segunda versión generada en el navegador).
+    try{
+      const res = await fetch('/api/crear-lectura',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({nombre:userData.name,dob:userData.dob,birthTime:userData.birthTime,due:userData.due,sex:userData.sex,question:userData.question,cards:chosenCards,caminoSlug:'prenatal'})
+      });
+      const data = await res.json();
+      if(!res.ok) throw new Error(data.error || 'Error al generar la lectura');
+      currentLecturaId = data.lecturaId;
+      lastReadingText = data.reading;
+    }catch(err){
+      lastReadingText = 'No pudimos generar tu lectura en este momento. Por favor, inténtalo de nuevo en unos segundos.';
+    }
+  }else{
+    // Sin cuenta: avance instantáneo, nunca se guarda en el servidor.
+    const fullLocalText = generateTemplateReading({name:userData.name,dob:userData.dob,birthTime:userData.birthTime,question:userData.question,cards:chosenCards});
+    lastReadingText = getPreviewText(fullLocalText) + '\n\n✨ Crea una cuenta gratuita para guardar tu Camino Aura y desbloquear tu lectura completa.';
+  }
+
+  boxEl.textContent = lastReadingText;
+  loadingEl.style.display='none';
+  boxEl.style.display='block';
+  nextBtn.style.display='inline-block';
+};
+
+let pastReflectionLoaded = false;
+async function loadPastReflection(){
+  if(pastReflectionLoaded) return; // solo la buscamos una vez por sesión de navegación
+  pastReflectionLoaded = true;
+  try{
+    const r = await fetch('/api/reflexion-pasada');
+    const data = await r.json();
+    if(data.reflexion){
+      const fecha = new Date(data.reflexion.creado_en).toLocaleDateString('es-ES',{day:'numeric',month:'long'});
+      document.getElementById('pastReflectionText').textContent = `"${data.reflexion.texto}" (${fecha})`;
+      document.getElementById('pastReflectionBox').style.display='block';
+    }
+  }catch(e){ /* si falla, simplemente no mostramos nada — no es una funcionalidad crítica */ }
+}
+
+window.saveReflection = async function(){
+  const text=document.getElementById('reflectionText').value;
+  const msg=document.getElementById('reflectionMsg');
+  if(!text.trim()){ goTo(7); return; }
+  try{
+    const r=await fetch('/api/guardar-reflexion',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({texto:text, lecturaId:currentLecturaId})
+    });
+    if(r.status===401){
+      msg.textContent='Inicia sesión desde la portada para guardar tus reflexiones. Por ahora, continuamos.';
+      msg.style.display='block';
+      setTimeout(()=>goTo(7),1800);
+      return;
+    }
+    if(!r.ok) throw new Error();
+    msg.textContent='✨ Reflexión guardada en tu Camino Aura.';
+    msg.style.display='block';
+    setTimeout(()=>goTo(7),1200);
+  }catch(e){
+    goTo(7);
+  }
+};
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{ navigator.serviceWorker.register('sw.js').catch(()=>{}); });
+}
+</script>
+</body>
+</html>

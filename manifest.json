@@ -1,0 +1,14 @@
+{
+  "name": "AURA · Oráculo Prenatal",
+  "short_name": "AURA",
+  "description": "Experiencia espiritual y simbólica de acompañamiento prenatal.",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#070316",
+  "theme_color": "#070316",
+  "lang": "es",
+  "icons": [
+    { "src": "assets/favicon-32.png", "sizes": "32x32", "type": "image/png" },
+    { "src": "assets/favicon.png", "sizes": "256x256", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

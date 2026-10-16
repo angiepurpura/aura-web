@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Meditaciones · AURA</title>
+<link rel="icon" type="image/png" href="assets/favicon-32.png">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#070316">
+<link rel="stylesheet" href="assets/aura.css">
+<style>
+.wrap{max-width:720px;margin:auto;padding:60px 22px 100px}
+a.back{display:inline-block;margin-bottom:30px;color:var(--m);font-size:14px;text-decoration:none}
+h1{font-size:32px;margin-bottom:6px}
+.subtitle{color:var(--m);margin-bottom:40px}
+.med-card{background:rgba(244,201,93,.06);border:1px solid rgba(244,201,93,.2);border-radius:18px;padding:24px;margin-bottom:20px;cursor:pointer}
+.med-card h3{margin:0 0 6px;color:#fff3d0;font-size:20px}
+.med-card .dur{color:var(--c);font-size:13px}
+.med-card .body{white-space:pre-line;color:#f0e6d2;font-size:14.5px;margin-top:16px;display:none}
+.med-card.open .body{display:block}
+.soon{display:inline-block;margin-top:10px;font-size:12px;color:var(--m);border:1px dashed var(--line);border-radius:999px;padding:4px 12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<a class="back" href="index.html">← Volver a AURA</a>
+<h1>Meditaciones AURA</h1>
+<p class="subtitle">Espacios breves de calma para acompañarte en esta etapa. Toca cada una para leerla.</p>
+
+<div class="med-card" id="m1">
+  <h3>🌙 Un minuto para ti</h3>
+  <div class="dur">2 minutos · texto guiado</div>
+  <span class="soon">🎧 Audio narrado: próximamente</span>
+  <div class="body">Cierra los ojos, si te resulta cómodo.
+
+Deja caer los hombros. Suelta la mandíbula.
+
+Respira lentamente por la nariz... y suelta el aire despacio por la boca.
+
+Este momento es solamente tuyo.
+
+No hace falta hacer nada más que estar aquí, respirando.
+
+Siente cómo tu cuerpo sostiene esta nueva vida, sin esfuerzo, sin que tengas que pensarlo. Tu cuerpo ya sabe.
+
+Con cada respiración, permite que la tensión del día se vaya soltando un poco más.
+
+No necesitas tener todas las respuestas hoy. Solo este momento. Solo esta respiración.
+
+Cuando estés lista, abre los ojos suavemente, y lleva contigo esta calma al resto de tu día.</div>
+</div>
+
+<div class="med-card" id="m2">
+  <h3>✨ Conexión con tu bebé</h3>
+  <div class="dur">4 minutos · texto guiado</div>
+  <span class="soon">🎧 Audio narrado: próximamente</span>
+  <div class="body">Busca una postura cómoda. Puedes sentarte o recostarte, lo que tu cuerpo te pida hoy.
+
+Cierra los ojos si lo deseas, y lleva tu atención hacia tu respiración, sin cambiarla, solo observándola.
+
+Ahora, lleva suavemente tu atención hacia tu vientre.
+
+No hace falta imaginar nada en concreto. Solo estar presente, aquí, con quien está creciendo dentro de ti.
+
+Puedes, si quieres, posar tus manos sobre tu vientre con suavidad.
+
+Imagina, o simplemente siente, ese vínculo invisible que ya existe entre ustedes dos.
+
+No hay una forma correcta de sentir esto. Puede haber calma, puede haber ternura, puede haber incluso algo de nervios — todo tiene su lugar aquí.
+
+Antes de terminar, ofrécete a ti misma un momento de reconocimiento: estás haciendo algo profundo, simplemente al estar presente así.
+
+Cuando estés lista, respira profundamente una vez más, y abre los ojos.</div>
+</div>
+
+<div class="med-card" id="m3">
+  <h3>🌌 Calma antes de dormir</h3>
+  <div class="dur">5 minutos · texto guiado</div>
+  <span class="soon">🎧 Audio narrado: próximamente</span>
+  <div class="body">Prepárate para descansar. Acomoda tu cuerpo de la forma que te resulte más cómoda esta noche.
+
+Cierra los ojos.
+
+Respira lentamente. Inhala en cuatro tiempos... y exhala en seis. Repite ese mismo ritmo una vez más, soltando un poco más de tensión cada vez.
+
+Deja que este día quede atrás. No necesitas resolver nada más ahora.
+
+Este es un espacio de descanso, para ti y para quien te acompaña por dentro.
+
+Si aparecen pensamientos o preocupaciones, obsérvalos como si fueran nubes pasando por el cielo. No hace falta detenerlos, solo dejarlos pasar.
+
+Poco a poco, permite que tu cuerpo se sienta más pesado, más relajado, más en calma.
+
+Estás a salvo. Estás descansando. Y mañana será un nuevo momento para comenzar de nuevo.
+
+Buenas noches.</div>
+</div>
+
+<div class="note-box">
+Estas meditaciones son un acompañamiento de bienestar y relajación. No sustituyen tratamiento médico ni psicológico. Si sientes ansiedad intensa o persistente, es importante que lo converses con un profesional de salud.
+</div>
+</div>
+<script>
+document.querySelectorAll('.med-card').forEach(c=>{
+  c.addEventListener('click',()=>c.classList.toggle('open'));
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mi Camino Aura · Historial</title>
+<link rel="icon" type="image/png" href="assets/favicon-32.png">
+<link rel="stylesheet" href="assets/aura.css">
+<style>
+.wrap{max-width:720px;margin:auto;padding:60px 22px 100px}
+h1{font-size:32px}
+.back{display:inline-block;margin-bottom:30px;color:var(--m);font-size:14px}
+.card{background:rgba(244,201,93,.06);border:1px solid rgba(244,201,93,.2);border-radius:16px;padding:22px;margin-bottom:18px}
+.card .fecha{color:var(--m);font-size:13px;margin-bottom:8px}
+.card .cartas{color:var(--g);font-size:13px;margin-bottom:10px}
+.card .texto{white-space:pre-line;font-size:14.5px;color:#f0e6d2}
+.empty{color:var(--m);text-align:center;padding:60px 0}
+.loading{color:var(--m);text-align:center;padding:60px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+<a class="back" href="index.html">← Volver a AURA</a>
+<h1>Mi Camino Aura</h1>
+<div id="content" class="loading">Cargando tu historial...</div>
+</div>
+<script>
+fetch('/api/mis-lecturas').then(r=>{
+  if(r.status===401){document.getElementById('content').innerHTML='<div class="empty">Necesitas iniciar sesión para ver tu historial.</div>';throw new Error('no auth')}
+  return r.json();
+}).then(data=>{
+  const el=document.getElementById('content');
+  if(!data.lecturas || data.lecturas.length===0){
+    el.innerHTML='<div class="empty">Todavía no tienes lecturas guardadas en tu Camino Aura.</div>';
+    return;
+  }
+  el.innerHTML='';
+  // Construimos cada tarjeta con textContent (nunca innerHTML para datos
+  // de la usuaria/IA) — evita que texto malicioso se ejecute como HTML.
+  data.lecturas.forEach(l=>{
+    const card=document.createElement('div');
+    card.className='card';
+
+    const fecha=document.createElement('div');
+    fecha.className='fecha';
+    fecha.textContent=new Date(l.creado_en).toLocaleDateString('es-ES',{day:'numeric',month:'long',year:'numeric'});
+    card.appendChild(fecha);
+
+    const cartas=document.createElement('div');
+    cartas.className='cartas';
+    cartas.textContent='🃏 '+l.cartas.join(' · ');
+    card.appendChild(cartas);
+
+    const texto=document.createElement('div');
+    texto.className='texto';
+    texto.textContent=l.resultado_texto;
+    card.appendChild(texto);
+
+    if(l.pagado){
+      const badge=document.createElement('div');
+      badge.style.cssText='margin-top:12px;color:#a8f0c6;font-size:13px';
+      badge.textContent='✨ Pagada';
+      card.appendChild(badge);
+    }else{
+      const payLink=document.createElement('a');
+      payLink.href='pago.html?lectura='+encodeURIComponent(l.id);
+      payLink.className='cta gold';
+      payLink.style.cssText='margin-top:14px;font-size:13px;padding:10px 22px';
+      payLink.textContent='Pagar esta lectura →';
+      card.appendChild(payLink);
+    }
+
+    el.appendChild(card);
+  });
+}).catch(()=>{});
+</script>
+</body>
+</html>

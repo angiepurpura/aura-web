@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Completar pago · AURA</title>
+<link rel="icon" type="image/png" href="assets/favicon-32.png">
+<link rel="stylesheet" href="assets/aura.css">
+<style>
+body{min-height:100vh;display:flex;align-items:center;justify-content:center}
+.box{max-width:400px;width:100%;padding:20px;text-align:center}
+h1{font-size:28px;margin-bottom:14px}
+p{color:var(--m);font-size:14px;line-height:1.7}
+#paypal-button-container{margin-top:26px}
+.msg{margin-top:20px;font-size:13px}
+.error{color:#ffb4b4}
+.success{color:#a8f0c6}
+.fallback{margin-top:26px}
+</style>
+</head>
+<body>
+<div class="box">
+  <h1>Completar tu pago</h1>
+  <p>Tu lectura AURA está lista. Completa el pago para desbloquear tu experiencia completa.</p>
+  <div id="paypal-button-container"></div>
+  <div id="msg" class="msg" style="display:none"></div>
+  <div id="fallback" class="fallback" style="display:none">
+    <p style="margin-bottom:14px">El pago con tarjeta directa aún no está activo. Puedes pagar por este enlace mientras tanto:</p>
+    <a class="cta gold" href="https://paypal.me/auramistic/20EUR" target="_blank" rel="noopener">Pagar 20€ con PayPal →</a>
+  </div>
+</div>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+const lecturaId = params.get('lectura');
+const orderIdFromReturn = params.get('token'); // PayPal añade esto al volver del checkout
+
+async function init(){
+  if(!lecturaId && !orderIdFromReturn){
+    document.getElementById('fallback').style.display='block';
+    return;
+  }
+
+  // Si volvemos de PayPal tras aprobar el pago, lo capturamos directamente
+  if(orderIdFromReturn){
+    const msg=document.getElementById('msg');
+    msg.textContent='Confirmando tu pago...';
+    msg.className='msg';
+    msg.style.display='block';
+    try{
+      const r=await fetch('/api/capturar-orden-paypal',{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({orderId:orderIdFromReturn})
+      });
+      const data=await r.json();
+      if(!r.ok) throw new Error(data.error||'Error al confirmar el pago');
+      msg.textContent='✨ ¡Pago confirmado! Tu lectura ya está desbloqueada.';
+      msg.className='msg success';
+    }catch(err){
+      msg.textContent=err.message;
+      msg.className='msg error';
+      document.getElementById('fallback').style.display='block';
+    }
+    return;
+  }
+
+  // Si no, iniciamos una orden nueva para la lectura indicada
+  try{
+    const r=await fetch('/api/crear-orden-paypal',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({lecturaId})
+    });
+    const data=await r.json();
+    if(!r.ok) throw new Error(data.error||'No se pudo iniciar el pago');
+    window.location.href = data.approveUrl;
+  }catch(err){
+    const msg=document.getElementById('msg');
+    msg.textContent=err.message;
+    msg.className='msg error';
+    msg.style.display='block';
+    document.getElementById('fallback').style.display='block';
+  }
+}
+init();
+</script>
+</body>
+</html>

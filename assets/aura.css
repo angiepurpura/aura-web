@@ -1,0 +1,107 @@
+/* assets/aura.css
+   Sistema de diseño compartido de AURA. Todas las páginas del sitio lo
+   enlazan para garantizar consistencia visual real (no solo "parecida").
+   index.html mantiene además sus propios estilos específicos de la
+   landing page (hero, secciones largas, etc.) en su propio <style>.
+*/
+
+:root{
+  --n:#070316;        /* fondo más oscuro */
+  --n2:#120629;        /* fondo de tarjetas/paneles */
+  --g:#f4c95d;         /* dorado — acento secundario */
+  --p:#f46d9d;          /* rosa — acento principal de marca */
+  --c:#67e9ff;          /* cian — enlaces y detalles */
+  --t:#fff9f0;          /* texto principal */
+  --m:#c9bfd8;          /* texto secundario/atenuado */
+  --glass:rgba(13,7,32,.8);
+  --line:rgba(244,201,93,.35);
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+
+body{
+  margin:0;
+  background:radial-gradient(circle at 50% 12%,#26104b,#09041b 48%,#03020b);
+  color:var(--t);
+  font-family:Segoe UI,system-ui,sans-serif;
+  line-height:1.7;
+}
+
+a{color:var(--c)}
+a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{
+  outline:2px solid var(--c);
+  outline-offset:2px;
+}
+
+h1,h2,h3{font-family:Georgia,serif;font-weight:400;color:var(--g)}
+
+/* ===== Botones ===== */
+/* .cta es la acción principal de marca (degradado rosa) — úsala para la
+   acción más importante de cada pantalla. .cta.gold es la variante dorada,
+   para acciones secundarias importantes (ej. confirmar un pago). */
+.cta{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  border:0;
+  border-radius:999px;
+  padding:15px 28px;
+  background:linear-gradient(90deg,#e85f91,#b93870);
+  box-shadow:0 10px 35px rgba(232,95,145,.3);
+  color:#fff;
+  font-weight:800;
+  font-size:15px;
+  cursor:pointer;
+  text-decoration:none;
+  transition:transform .15s ease;
+}
+.cta:hover{transform:translateY(-1px)}
+.cta.gold{
+  background:linear-gradient(90deg,#d8a93e,#f7d675);
+  color:#211200;
+  box-shadow:0 10px 35px rgba(216,169,62,.25);
+}
+.cta.ghost{
+  background:transparent;
+  color:var(--m);
+  border:1px solid var(--line);
+  box-shadow:none;
+}
+.cta:disabled{opacity:.6;cursor:not-allowed;transform:none}
+
+/* ===== Formularios ===== */
+input,textarea,select{
+  width:100%;
+  background:rgba(255,255,255,.04);
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:12px 14px;
+  color:var(--t);
+  font-size:14px;
+  margin-bottom:12px;
+  font-family:inherit;
+}
+textarea{min-height:100px;resize:vertical}
+label{display:block;font-size:13px;color:var(--m);margin-bottom:6px}
+
+/* ===== Tarjetas y superficies ===== */
+.surface{
+  background:rgba(244,201,93,.06);
+  border:1px solid rgba(244,201,93,.2);
+  border-radius:16px;
+  padding:22px;
+}
+
+/* ===== Utilidades de texto ===== */
+.text-muted{color:var(--m)}
+.note-box{
+  margin-top:40px;
+  padding:18px;
+  border-radius:12px;
+  background:rgba(103,233,255,.08);
+  border:1px solid rgba(103,233,255,.25);
+  font-size:13.5px;
+  color:#cdeeff;
+}
